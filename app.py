@@ -73,17 +73,17 @@ with st.sidebar:
 
 # Sector and Portfolio files mapping
 SECTOR_FILES = {
-    'Ngân hàng': 'NEW2024/Banking.csv',
-    'Vật liệu xây dựng': 'NEW2024/Materials.csv',
-    'Hóa chất': 'NEW2024/Chemicals.csv',
-    'Dịch vụ tài chính': 'NEW2024/Financial Services.csv',
-    'Thực phẩm và đồ uống': 'NEW2024/Food & Beverage.csv',
-    'Dịch vụ công nghiệp': 'NEW2024/Industrial Services.csv',
-    'Công nghệ thông tin': 'NEW2024/InformationTechnology.csv',
-    'Khoáng sản': 'NEW2024/Minerals.csv',
-    'Dầu khí': 'NEW2024/Oil & Gas.csv',
-    'Bất động sản': 'NEW2024/RealEstate.csv',
-    'VNINDEX': 'data_nganh/Vnindex (2).csv'
+    'Ngân hàng': 'Banking.csv',
+    'Vật liệu xây dựng': 'Materials.csv',
+    'Hóa chất': 'Chemicals.csv',
+    'Dịch vụ tài chính': 'Financial Services.csv',
+    'Thực phẩm và đồ uống': 'Food & Beverage.csv',
+    'Dịch vụ công nghiệp': 'Industrial Services.csv',
+    'Công nghệ thông tin': 'InformationTechnology.csv',
+    'Khoáng sản': 'Minerals.csv',
+    'Dầu khí': 'Oil & Gas.csv',
+    'Bất động sản': 'RealEstate.csv',
+    'VNINDEX': 'Vnindex (2).csv'
 }
 
 
