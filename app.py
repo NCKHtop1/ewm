@@ -1,3 +1,6 @@
+git add requirements.txt
+git commit -m "Update requirements.txt with necessary libraries"
+git push origin main
 import vectorbt as vbt
 import streamlit as st
 import pandas as pd
