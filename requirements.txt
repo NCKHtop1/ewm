@@ -9,3 +9,4 @@ streamlit==1.37.1
 pandas==1.5.3
 numpy==1.23.5
 vectorbt==0.26.1
+beautifulsoup4==4.12.2 
