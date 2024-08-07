@@ -93,8 +93,8 @@ def load_data(file_path):
     
     try:
         df = pd.read_csv(file_path)
-        if 'Datetime' in df.columns:
-            df['Datetime'] = pd.to_datetime(df['datetime'], dayfirst=True, errors='coerce')
+        if 'datetime' in df.columns:
+            df['datetime'] = pd.to_datetime(df['datetime'], dayfirst=True, errors='coerce')
             df = df.set_index('datetime')
         else:
             st.error(f"'datetime' column not found in file: {file_path}")
