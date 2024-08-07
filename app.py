@@ -504,7 +504,12 @@ if uploaded_file is not None:
             if start_date < end_date:
                 df_to_analyze = df_uploaded.loc[start_date:end_date]
                 init_cash = st.number_input("Nhập vốn đầu tư", value=100000000, help="Nhập số tiền đầu tư ban đầu.")
-                portfolio = run_backtest(df_to_analyze, init_cash=init_cash, fees=0.001, direction='longonly')
+                fees = st.number_input("Phí giao dịch (%)", min_value=0.0, max_value=10.0, value=0.1, step=0.01) / 100
+                direction = st.selectbox("Vị thế", ["Mua", "Bán"], index=0)
+                direction = "longonly" if direction == "Mua" else "shortonly"
+                t_plus = st.number_input("Thời gian nắm giữ tối thiểu (ngày)", min_value=0, max_value=5, value=2)
+
+                portfolio = run_backtest(df_to_analyze, init_cash=init_cash, fees=fees, direction=direction, t_plus=t_plus)
                 if portfolio is not None:
                     st.write("Kết quả Backtest:", portfolio.stats())
                 else:
