@@ -491,10 +491,13 @@ if uploaded_file is not None:
         st.write('Tệp đã tải lên:', df_uploaded.head())
 
         if 'close' in df_uploaded.columns:
-            # Define and calculate indicators and signals
-            # Dummy conditions; replace these with actual trading logic
-            df_uploaded['Adjusted Buy'] = df_uploaded['close'] > df_uploaded['close'].shift(1)  # Example buy signal
-            df_uploaded['Adjusted Sell'] = df_uploaded['close'] < df_uploaded['close'].shift(1)  # Example sell signal
+            # Calculate MACD and RSI indicators
+            df_uploaded['macd'], df_uploaded['macd_signal'], df_uploaded['macd_hist'] = ta.macd(df_uploaded['close'])
+            df_uploaded['rsi'] = ta.rsi(df_uploaded['close'])
+
+            # Define buy and sell signals based on MACD crossover and RSI levels
+            df_uploaded['Adjusted Buy'] = ((df_uploaded['macd'] > df_uploaded['macd_signal']) & (df_uploaded['rsi'] < 30))
+            df_uploaded['Adjusted Sell'] = ((df_uploaded['macd'] < df_uploaded['macd_signal']) & (df_uploaded['rsi'] > 70))
             df_uploaded['Crash'] = df_uploaded['close'] < df_uploaded['close'].rolling(window=5).min()  # Example crash condition
 
             # Date range selection
@@ -522,6 +525,8 @@ if uploaded_file is not None:
                     fig.add_trace(go.Scatter(x=df_to_analyze[df_to_analyze['Adjusted Buy']].index, y=df_to_analyze['close'][df_to_analyze['Adjusted Buy']], mode='markers', marker=dict(color='green', size=10), name='Buy Signal'))
                     fig.add_trace(go.Scatter(x=df_to_analyze[df_to_analyze['Adjusted Sell']].index, y=df_to_analyze['close'][df_to_analyze['Adjusted Sell']], mode='markers', marker=dict(color='red', size=10), name='Sell Signal'))
                     fig.add_trace(go.Scatter(x=df_to_analyze[df_to_analyze['Crash']].index, y=df_to_analyze['close'][df_to_analyze['Crash']], mode='markers', marker=dict(color='orange', size=10, symbol='x'), name='Crash Alert'))
+                    fig.add_trace(go.Scatter(x=df_to_analyze.index, y=df_to_analyze['macd'], mode='lines', name='MACD'))
+                    fig.add_trace(go.Scatter(x=df_to_analyze.index, y=df_to_analyze['macd_signal'], mode='lines', name='MACD Signal'))
 
                     fig.update_layout(title='Backtest Results with Buy/Sell Signals and Crash Alerts', xaxis_title='Date', yaxis_title='Price', legend_title='Legend')
                     st.plotly_chart(fig, use_container_width=True)
