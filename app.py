@@ -80,7 +80,7 @@ SECTOR_FILES = {
     'Khoáng sản': 'Minerals.csv',
     'Dầu khí': 'Oil & Gas.csv',
     'Bất động sản': 'RealEstate.csv',
-    'VNINDEX': 'VNINDEX.csv'
+    'VNINDEX': 'VNINDEX'
 }
 
 
@@ -90,22 +90,8 @@ def load_data(file_path):
     if not os.path.exists(file_path):
         st.error(f"File not found: {file_path}")
         return pd.DataFrame()
-    
-    try:
-        df = pd.read_csv(file_path)
-        if 'datetime' in df.columns:
-            df['datetime'] = pd.to_datetime(df['datetime'], dayfirst=True, errors='coerce')
-            df = df.set_index('datetime')
-        else:
-            st.error(f"'datetime' column not found in file: {file_path}")
-            return pd.DataFrame()
-        
-        # Further ensure there are no duplicated indices
-        df = df[~df.index.duplicated(keep='first')]
-        return df
-    except Exception as e:
-        st.error(f"Error loading data from file: {e}")
-        return pd.DataFrame()
+    return pd.read_csv(file_path, parse_dates=['Datetime'], dayfirst=True).set_index('Datetime')
+
 
 # Ensure datetime compatibility in dataframes
 def ensure_datetime_compatibility(start_date, end_date, df):
