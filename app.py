@@ -80,7 +80,7 @@ SECTOR_FILES = {
     'Khoáng sản': 'Minerals.csv',
     'Dầu khí': 'Oil & Gas.csv',
     'Bất động sản': 'RealEstate.csv',
-    'VNINDEX': 'VNINDEX'
+    'VNINDEX': 'VNINDEX.csv'
 }
 
 
