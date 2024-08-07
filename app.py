@@ -491,6 +491,12 @@ if uploaded_file is not None:
         st.write('Tệp đã tải lên:', df_uploaded.head())
 
         if 'close' in df_uploaded.columns:
+            # Define indicators here or ensure they are calculated before backtesting
+            # Example: df_uploaded['Adjusted Buy'] = your_signal_calculation_function(df_uploaded['close'])
+            # Ensure 'Adjusted Buy' and 'Adjusted Sell' signals are calculated
+            df_uploaded['Adjusted Buy'] = df_uploaded['close'].shift(-1) > df_uploaded['close']  # Dummy condition for buy
+            df_uploaded['Adjusted Sell'] = df_uploaded['close'].shift(-1) < df_uploaded['close']  # Dummy condition for sell
+
             # Handle date inputs and adjust to the nearest available dates in the DataFrame
             start_date = pd.Timestamp(st.date_input("Chọn ngày bắt đầu", value=df_uploaded.index.min()))
             end_date = pd.Timestamp(st.date_input("Chọn ngày kết thúc", value=df_uploaded.index.max()))
@@ -518,6 +524,8 @@ if uploaded_file is not None:
                 st.error("Ngày bắt đầu phải trước ngày kết thúc.")
         else:
             st.error("Dữ liệu tải lên không đầy đủ để thực hiện backtest.")
+    except KeyError as e:
+        st.error(f"A key error occurred: {e}. Please ensure your DataFrame contains all necessary columns.")
     except Exception as e:
         st.error(f"An error occurred while processing the uploaded file: {e}")
 
