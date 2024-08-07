@@ -484,19 +484,17 @@ else:
 uploaded_file = st.sidebar.file_uploader("Tải tệp dữ liệu của bạn lên", type=['csv', 'xlsx'])
 if uploaded_file is not None:
     try:
+        # Load the data, ensuring 'Datetime' is parsed as a datetime type
         df_uploaded = pd.read_csv(uploaded_file, parse_dates=['Datetime'], dayfirst=True)
-        df_uploaded.drop_duplicates(subset='Datetime', inplace=True)
+        df_uploaded.drop_duplicates(subset='Datetime', inplace=True)  # Ensure unique datetime index
         df_uploaded.set_index('Datetime', inplace=True)
         st.write('Tệp đã tải lên:', df_uploaded.head())
 
-        # Ensure there are no duplicate dates and the 'close' column exists
         if 'close' in df_uploaded.columns:
-            st.write('Chọn ngày bắt đầu và ngày kết thúc để phân tích:')
-            start_date = st.date_input("Chọn ngày bắt đầu", value=df_uploaded.index.min())
-            end_date = st.date_input("Chọn ngày kết thúc", value=df_uploaded.index.max())
-            init_cash = st.number_input("Nhập vốn đầu tư", value=100000000, help="Nhập số tiền đầu tư ban đầu.")
+            # Handle date inputs and adjust to the nearest available dates in the DataFrame
+            start_date = pd.Timestamp(st.date_input("Chọn ngày bắt đầu", value=df_uploaded.index.min()))
+            end_date = pd.Timestamp(st.date_input("Chọn ngày kết thúc", value=df_uploaded.index.max()))
 
-            # Adjust start_date and end_date to the nearest available dates in the index
             if start_date not in df_uploaded.index:
                 start_date = df_uploaded.index[df_uploaded.index.get_loc(start_date, method='nearest')]
             if end_date not in df_uploaded.index:
@@ -505,15 +503,18 @@ if uploaded_file is not None:
             # Check if dates are in a valid range
             if start_date < end_date:
                 df_to_analyze = df_uploaded.loc[start_date:end_date]
+                init_cash = st.number_input("Nhập vốn đầu tư", value=100000000, help="Nhập số tiền đầu tư ban đầu.")
                 portfolio = run_backtest(df_to_analyze, init_cash=init_cash, fees=0.001, direction='longonly')
                 if portfolio is not None:
                     st.write("Kết quả Backtest:", portfolio.stats())
                 else:
                     st.error("Không có giao dịch nào được thực hiện.")
+            else:
+                st.error("Ngày bắt đầu phải trước ngày kết thúc.")
         else:
             st.error("Dữ liệu tải lên không đầy đủ để thực hiện backtest.")
     except Exception as e:
-        st.error(f"Không thể xử lý tệp tải lên: {e}")
+        st.error(f"An error occurred while processing the uploaded file: {e}")
 
 # Hiển thị Cấu trúc Cột cho Tệp Ngành
 if st.sidebar.checkbox('Hiển thị Cấu trúc Cột Dữ liệu Ngành'):
