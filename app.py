@@ -491,13 +491,13 @@ if uploaded_file is not None:
         st.write('Tệp đã tải lên:', df_uploaded.head())
 
         if 'close' in df_uploaded.columns:
-            # Define indicators here or ensure they are calculated before backtesting
-            # Example: df_uploaded['Adjusted Buy'] = your_signal_calculation_function(df_uploaded['close'])
-            # Ensure 'Adjusted Buy' and 'Adjusted Sell' signals are calculated
-            df_uploaded['Adjusted Buy'] = df_uploaded['close'].shift(-1) > df_uploaded['close']  # Dummy condition for buy
-            df_uploaded['Adjusted Sell'] = df_uploaded['close'].shift(-1) < df_uploaded['close']  # Dummy condition for sell
+            # Define and calculate indicators and signals
+            # Dummy conditions; replace these with actual trading logic
+            df_uploaded['Adjusted Buy'] = df_uploaded['close'] > df_uploaded['close'].shift(1)  # Example buy signal
+            df_uploaded['Adjusted Sell'] = df_uploaded['close'] < df_uploaded['close'].shift(1)  # Example sell signal
+            df_uploaded['Crash'] = df_uploaded['close'] < df_uploaded['close'].rolling(window=5).min()  # Example crash condition
 
-            # Handle date inputs and adjust to the nearest available dates in the DataFrame
+            # Date range selection
             start_date = pd.Timestamp(st.date_input("Chọn ngày bắt đầu", value=df_uploaded.index.min()))
             end_date = pd.Timestamp(st.date_input("Chọn ngày kết thúc", value=df_uploaded.index.max()))
 
@@ -506,7 +506,6 @@ if uploaded_file is not None:
             if end_date not in df_uploaded.index:
                 end_date = df_uploaded.index[df_uploaded.index.get_loc(end_date, method='nearest')]
 
-            # Check if dates are in a valid range
             if start_date < end_date:
                 df_to_analyze = df_uploaded.loc[start_date:end_date]
                 init_cash = st.number_input("Nhập vốn đầu tư", value=100000000, help="Nhập số tiền đầu tư ban đầu.")
@@ -517,6 +516,15 @@ if uploaded_file is not None:
 
                 portfolio = run_backtest(df_to_analyze, init_cash=init_cash, fees=fees, direction=direction, t_plus=t_plus)
                 if portfolio is not None:
+                    # Visualization
+                    fig = go.Figure()
+                    fig.add_trace(go.Scatter(x=df_to_analyze.index, y=df_to_analyze['close'], mode='lines', name='Price'))
+                    fig.add_trace(go.Scatter(x=df_to_analyze[df_to_analyze['Adjusted Buy']].index, y=df_to_analyze['close'][df_to_analyze['Adjusted Buy']], mode='markers', marker=dict(color='green', size=10), name='Buy Signal'))
+                    fig.add_trace(go.Scatter(x=df_to_analyze[df_to_analyze['Adjusted Sell']].index, y=df_to_analyze['close'][df_to_analyze['Adjusted Sell']], mode='markers', marker=dict(color='red', size=10), name='Sell Signal'))
+                    fig.add_trace(go.Scatter(x=df_to_analyze[df_to_analyze['Crash']].index, y=df_to_analyze['close'][df_to_analyze['Crash']], mode='markers', marker=dict(color='orange', size=10, symbol='x'), name='Crash Alert'))
+
+                    fig.update_layout(title='Backtest Results with Buy/Sell Signals and Crash Alerts', xaxis_title='Date', yaxis_title='Price', legend_title='Legend')
+                    st.plotly_chart(fig, use_container_width=True)
                     st.write("Kết quả Backtest:", portfolio.stats())
                 else:
                     st.error("Không có giao dịch nào được thực hiện.")
