@@ -90,7 +90,23 @@ def load_data(file_path):
     if not os.path.exists(file_path):
         st.error(f"File not found: {file_path}")
         return pd.DataFrame()
-    return pd.read_csv(file_path, parse_dates=['Datetime'], dayfirst=True).set_index('Datetime')
+    
+    try:
+        df = pd.read_csv(file_path)
+        if 'Datetime' in df.columns:
+            df['Datetime'] = pd.to_datetime(df['Datetime'], dayfirst=True, errors='coerce')
+            df = df.set_index('Datetime')
+        else:
+            st.error(f"'Datetime' column not found in file: {file_path}")
+            return pd.DataFrame()
+        
+        # Further ensure there are no duplicated indices
+        df = df[~df.index.duplicated(keep='first')]
+        return df
+    except Exception as e:
+        st.error(f"Error loading data from file: {e}")
+        return pd.DataFrame()
+
 
 
 # Ensure datetime compatibility in dataframes
