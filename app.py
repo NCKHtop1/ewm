@@ -480,46 +480,6 @@ if 'VN30' in portfolio_options:
 else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
 
-# Tải Dữ liệu Người Dùng
-# Function to handle potential NumPy operations properly
-def calculate_signals(df):
-    # Example of correctly handling NumPy arrays if needed
-    if isinstance(df['macd'], np.ndarray):
-        df['macd'] = pd.Series(df['macd'], index=df.index)
-    if isinstance(df['macd_signal'], np.ndarray):
-        df['macd_signal'] = pd.Series(df['macd_signal'], index=df.index)
-
-    df['Adjusted Buy'] = (df['macd'] > df['macd_signal']) & (df['rsi'] < 30)
-    df['Adjusted Sell'] = (df['macd'] < df['macd_signal']) & (df['rsi'] > 70)
-    return df
-
-# Main script
-uploaded_file = st.sidebar.file_uploader("Tải tệp dữ liệu của bạn lên", type=['csv', 'xlsx'])
-if uploaded_file is not None:
-    try:
-        df_uploaded = pd.read_csv(uploaded_file, parse_dates=['Datetime'], dayfirst=True)
-        df_uploaded.drop_duplicates(subset='Datetime', inplace=True)
-        df_uploaded.set_index('Datetime', inplace=True)
-
-        if 'close' in df_uploaded.columns:
-            df_uploaded.ta.macd(append=True)
-            df_uploaded.ta.rsi(append=True)
-            df_uploaded = calculate_signals(df_uploaded)  # Handle signal calculations properly
-
-            # Proceed with backtesting and plotting as before
-            # This section would be similar to previous examples, including setup for backtest and plotting
-
-        else:
-            st.error("Dữ liệu tải lên không đầy đủ để thực hiện backtest.")
-    except Exception as e:
-        st.error(f"An error occurred while processing the uploaded file: {e}")
-# Hiển thị Cấu trúc Cột cho Tệp Ngành
-if st.sidebar.checkbox('Hiển thị Cấu trúc Cột Dữ liệu Ngành'):
-    selected_sector = st.sidebar.selectbox('Chọn Ngành', list(SECTOR_FILES.keys()))
-    if selected_sector:
-        df = pd.read_csv(SECTOR_FILES[selected_sector])
-        st.write(f'Cột trong {selected_sector}:', df.columns)
-
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
     st.write('Nhập các thông số kiểm tra của bạn:')
     init_cash = st.number_input('Vốn đầu tư (VNĐ):', min_value=100_000_000, max_value=1_000_000_000, value=100_000_000,
