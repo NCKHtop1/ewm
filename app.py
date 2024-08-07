@@ -484,30 +484,30 @@ else:
 uploaded_file = st.sidebar.file_uploader("Tải tệp dữ liệu của bạn lên", type=['csv', 'xlsx'])
 if uploaded_file is not None:
     try:
-        # Read user uploaded file
-        df_uploaded = pd.read_csv(uploaded_file)
+        df_uploaded = pd.read_csv(uploaded_file, parse_dates=['Datetime'], dayfirst=True)
+        df_uploaded.drop_duplicates(subset='Datetime', inplace=True)
+        df_uploaded.set_index('Datetime', inplace=True)
         st.write('Tệp đã tải lên:', df_uploaded.head())
 
-        # Check for necessary columns
-        if 'Datetime' in df_uploaded.columns and 'close' in df_uploaded.columns:
-            # Process for backtesting
-            df_uploaded['Datetime'] = pd.to_datetime(df_uploaded['Datetime'])
-            df_uploaded.set_index('Datetime', inplace=True)
-
-            # Allow user to specify parameters
+        # Ensure there are no duplicate dates and the 'close' column exists
+        if 'close' in df_uploaded.columns:
             st.write('Chọn ngày bắt đầu và ngày kết thúc để phân tích:')
             start_date = st.date_input("Chọn ngày bắt đầu", value=df_uploaded.index.min())
             end_date = st.date_input("Chọn ngày kết thúc", value=df_uploaded.index.max())
             init_cash = st.number_input("Nhập vốn đầu tư", value=100000000, help="Nhập số tiền đầu tư ban đầu.")
 
-            # Run backtest
-            if start_date < end_date:
-                portfolio = run_backtest(df_uploaded.loc[start_date:end_date], init_cash=init_cash, fees=0.001,
-                                         direction='longonly')
+            # Adjust start_date and end_date to the nearest available dates in the index
+            if start_date not in df_uploaded.index:
+                start_date = df_uploaded.index[df_uploaded.index.get_loc(start_date, method='nearest')]
+            if end_date not in df_uploaded.index:
+                end_date = df_uploaded.index[df_uploaded.index.get_loc(end_date, method='nearest')]
 
+            # Check if dates are in a valid range
+            if start_date < end_date:
+                df_to_analyze = df_uploaded.loc[start_date:end_date]
+                portfolio = run_backtest(df_to_analyze, init_cash=init_cash, fees=0.001, direction='longonly')
                 if portfolio is not None:
-                    st.write("Kết quả Backtest:")
-                    st.write(portfolio.stats())
+                    st.write("Kết quả Backtest:", portfolio.stats())
                 else:
                     st.error("Không có giao dịch nào được thực hiện.")
         else:
