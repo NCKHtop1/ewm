@@ -477,12 +477,15 @@ class VN30:
     def fetch_data(self, symbol, date):
         # Fetch data from VNStock for a specific date
         try:
-            data = stock_historical_data(symbol=symbol, start_date=date, end_date=date, resolution='1D')
+            start_date = date.strftime('%Y-%m-%d')
+            end_date = start_date  # Fetch data for a single day
+            data = stock_historical_data(symbol=symbol, start_date=start_date, end_date=end_date, resolution='1D')
             df = pd.DataFrame(data)
             if not df.empty:
                 df['time'] = pd.to_datetime(df['time'])
                 df.set_index('time', inplace=True)
                 df.index.name = 'Datetime'
+                df['StockSymbol'] = symbol
                 return df
             else:
                 return pd.DataFrame()
@@ -496,7 +499,6 @@ class VN30:
             stock_data = self.fetch_data(symbol, date)
             if not stock_data.empty:
                 stock_data = self.calculate_crash_risk(stock_data, crash_threshold)
-                stock_data['StockSymbol'] = symbol  # Add symbol column
                 results.append(stock_data)
         if results:
             combined_data = pd.concat(results)
@@ -592,7 +594,6 @@ with tabs[1]:
         vn30_test.display_stock_status(vn30_stocks_test, crash_threshold)
     else:
         st.error("Không có dữ liệu cho ngày đã chọn.")
-        
 
 
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
