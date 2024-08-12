@@ -172,7 +172,8 @@ def ensure_datetime_compatibility(start_date, end_date, df):
 # combined_data = fetch_and_combine_data(symbol, file_path, start_date, end_date)
 # print(combined_data)
 # Check if VNINDEX is selected and add specific crash dates
-if 'VNINDEX' in portfolio_options:
+# Kiểm tra nếu người dùng đã chọn danh mục trong sidebar
+if 'portfolio_options' in locals() and 'VNINDEX' in portfolio_options:
     vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
 
     # Chỉ thêm crash vào các ngày cụ thể khi chọn VNINDEX
@@ -188,18 +189,6 @@ if 'VNINDEX' in portfolio_options:
         vn30.display_stock_status(vn30_stocks, crash_threshold)
 else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
-
-
-def load_detailed_data(selected_stocks):
-    data = pd.DataFrame()
-    for sector, file_path in SECTOR_FILES.items():
-        df = load_data(file_path)
-        if not df.empty:
-            sector_data = df[df['StockSymbol'].isin(selected_stocks)]
-            data = pd.concat([data, sector_data])
-    return data
-
-
 def calculate_VaR(returns, confidence_level=0.95):
     if not isinstance(returns, pd.Series):
         returns = pd.Series(returns)
