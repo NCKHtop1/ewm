@@ -513,7 +513,7 @@ with st.sidebar.expander("Thông số kiểm tra", expanded=True):
         max_value=100.0,
         value=2.0,
         step=0.1,
-        help="Đặt một mức lợi nhuận di động mà tại đó lệnh sẽ tự động đóng khi giá giảm từ mức cao nhất đạt được. Ví dụ: Nếu giá tăng 2% so với mức cao nhất, và sau đó bắt đầu giảm, lệnh sẽ chốt lợi nhuận."
+        help="Trailing take profit là một tỷ lệ chốt lời với giá linh hoạt được đặt dựa trên tỷ lệ phần trăm so với giá thị trường. Mức này tự động điều chỉnh khi giao dịch diễn biến theo hướng có lợi với vị thế mở lệnh, chỉ thực hiện đóng vị thế bằng trailing stop loss khi giá vượt qua một ngưỡng tỷ lệ lợi nhuận cụ thể nhằm đảm bảo mức lợi nhuận và bảo vệ khỏi sự đảo chiều. Ví dụ: Nếu giá tăng 2% so với mức cao nhất, và sau đó bắt đầu giảm, lệnh sẽ chốt lợi nhuận."
     )
     trailing_stop_loss_percentage = st.number_input(
         'Trailing Stop Loss (%)',
@@ -521,7 +521,7 @@ with st.sidebar.expander("Thông số kiểm tra", expanded=True):
         max_value=100.0,
         value=1.5,
         step=0.1,
-        help="Đặt một mức cắt lỗ di động giúp bảo vệ lợi nhuận khi giá cổ phiếu tăng. Mức stop loss sẽ tăng theo giá nhưng không giảm khi giá giảm. Ví dụ: Nếu giá tăng và đạt mức cao mới, mức stop sẽ điều chỉnh lên và đứng yên nếu giá sau đó giảm."
+        help="Trailing stop loss là tỷ lệ dừng lỗ với giá linh hoạt. Mức này sẽ tự động điều chỉnh khi giá thị trường chuyển động theo hướng có lợi cho nhà giao dịch. Nó giúp khóa lợi nhuận bằng cách theo dõi giá ở một tỷ lệ phần trăm hoặc khoảng cách cổ định và nó cũng hạn chế các khoản lỗ tiềm ẩn bằng cách đóng vị thế nếu giá đảo chiều."
     )
 
 
