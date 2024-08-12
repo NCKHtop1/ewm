@@ -11,6 +11,7 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
+# CSS for custom button
 st.markdown("""
     <style>
     .button {
@@ -52,6 +53,16 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+# HTML for the custom button
+st.markdown("""
+    <div class="button"> 
+        <span class="backdrop"></span>
+        Button
+    </div>
+""", unsafe_allow_html=True)
+
+
 # Custom CSS for better UI and tooltips
 st.markdown("""
     <style>
