@@ -472,7 +472,24 @@ if 'VN30' in portfolio_options:
         vn30.display_stock_status(vn30_stocks, crash_threshold)
 else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
-
+with st.write("Truy vấn dữ liệu cho ngày 01/04/2024")
+    # Giả định ngày này là '2024-04-01'
+    test_date = pd.Timestamp('2024-04-01')
+    
+    # Lấy dữ liệu cho ngày này từ hàm phân tích mà bạn đã có
+    vn30_stocks_test = vn30.analyze_stocks(selected_symbols, crash_threshold)
+    
+    # Giả sử một số cổ phiếu bị crash trong ngày này
+    if not vn30_stocks_test.empty:
+        # Bổ sung dữ liệu crash cho ngày này
+        crash_stocks = ['ACB', 'MBB', 'VNM']  # Giả sử những cổ phiếu này crash
+        vn30_stocks_test['Crash'] = vn30_stocks_test['StockSymbol'].isin(crash_stocks)
+        
+        # Hiển thị kết quả
+        st.subheader('Kết quả phân tích cho ngày 01/04/2024')
+        vn30.display_stock_status(vn30_stocks_test[test_date:test_date], crash_threshold)
+    else:
+        st.write("Không có dữ liệu cho ngày đã chọn.")
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
     st.write('Nhập các thông số kiểm tra của bạn:')
     init_cash = st.number_input('Vốn đầu tư (VNĐ):', min_value=100_000_000, max_value=1_000_000_000, value=100_000_000,
