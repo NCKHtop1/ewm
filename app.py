@@ -175,9 +175,6 @@ def ensure_datetime_compatibility(start_date, end_date, df):
 # Kiểm tra nếu người dùng đã chọn danh mục trong sidebar
 # Load dữ liệu từ file VNINDEX.csv
 
-# Tải dữ liệu từ các file liên quan
-combined_data = load_detailed_data(selected_stocks)
-
 def calculate_VaR(returns, confidence_level=0.95):
     if not isinstance(returns, pd.Series):
         returns = pd.Series(returns)
