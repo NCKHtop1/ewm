@@ -178,14 +178,26 @@ def ensure_datetime_compatibility(start_date, end_date, df):
 # Tải dữ liệu từ các file liên quan
 combined_data = load_detailed_data(selected_stocks)
 
-# Kiểm tra nếu VNINDEX nằm trong danh sách selected_stocks
+# Nếu VNINDEX được chọn, xử lý nó riêng
 if 'VNINDEX' in selected_stocks:
+    combined_data = load_data(SECTOR_FILES['VNINDEX'])
+    
+    # Bổ sung các ngày crash cụ thể vào dữ liệu VNINDEX
     specific_crash_dates = ['2024-04-15', '2024-04-16', '2024-04-17']
     for date_str in specific_crash_dates:
         date = pd.Timestamp(date_str)
         if date in combined_data.index:
             combined_data.at[date, 'Crash'] = True
 
+    # Loại bỏ VNINDEX khỏi danh sách `selected_stocks` để không xử lý lại
+    selected_stocks.remove('VNINDEX')
+
+    # Nếu còn các mã khác, xử lý dữ liệu của chúng và kết hợp với VNINDEX
+    if selected_stocks:
+        sector_data = load_detailed_data(selected_stocks)
+        combined_data = pd.concat([combined_data, sector_data])
+else:
+    combined_data = load_detailed_data(selected_stocks)
 def calculate_VaR(returns, confidence_level=0.95):
     if not isinstance(returns, pd.Series):
         returns = pd.Series(returns)
