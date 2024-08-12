@@ -502,23 +502,38 @@ class VN30:
         else:
             return pd.DataFrame()
 
-# Modify the tabs configuration to use the modified class and methods
+# Tạo các tab
+tabs = st.tabs(["Danh mục VN30", "Test"])
+
+# Tab 1: Danh mục VN30
+with tabs[0]:
+    # Phần hiện có của bạn
+    vn30_stocks = pd.DataFrame()
+    if 'VN30' in portfolio_options:
+        vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
+        if not vn30_stocks.empty:
+            st.subheader('Cảnh báo sớm cho Danh mục VN30')
+            vn30.display_stock_status(vn30_stocks, crash_threshold)
+    else:
+        st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
+
+# Tab 2: Test với ngày 01/04/2024
 with tabs[1]:
     st.write("Truy vấn dữ liệu cho ngày 01/04/2024")
+    
+    # Giả định ngày này là '2024-04-01'
     test_date = '2024-04-01'
     
-    # Initialize the VN30 class
-    vn30 = VN30()
-    
-    # Analyze stocks for the test date
+    # Lấy dữ liệu cho ngày này từ hàm phân tích mà bạn đã có
     vn30_stocks_test = vn30.analyze_stocks(selected_symbols, crash_threshold, date=test_date)
     
     if not vn30_stocks_test.empty:
-        # Display the results
+        # Hiển thị kết quả cho ngày 01/04/2024
         st.subheader('Kết quả phân tích cho ngày 01/04/2024')
         vn30.display_stock_status(vn30_stocks_test, crash_threshold)
     else:
         st.error("Không có dữ liệu cho ngày đã chọn.")
+
 
 
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
