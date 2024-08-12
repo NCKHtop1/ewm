@@ -11,59 +11,6 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
-# CSS for custom button
-st.markdown("""
-    <style>
-    .button {
-        width: 90px;
-        height: 90px;
-        border-radius: 15px;
-        backdrop-filter: blur(10px);
-        background-color: rgba(255, 255, 255, 0.1);
-        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
-        color: #fff;
-        font-size: 40px;
-        position: relative;
-        display: inline-block;
-        cursor: pointer;
-        border: none;
-    }
-
-    .backdrop {
-        position: absolute;
-        width: 80px;
-        height: 80px;
-        background-color: rgb(36, 33, 228);
-        z-index: -1;
-        top: 50%;
-        left: 50%;
-        border-radius: 15px;
-        transform: translateX(-50%) translateY(-50%);
-        transition: all ease-in-out 0.5s;
-    }
-
-    .button:hover + .backdrop {
-        top: 48%;
-        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
-        transform: rotate(15deg) translateX(-50%) translateY(-50%);
-    }
-
-    .button:active, .button:active + .backdrop {
-        box-shadow: none;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# HTML for the custom button
-st.markdown("""
-    <div class="button"> 
-        <span class="backdrop"></span>
-        Button
-    </div>
-""", unsafe_allow_html=True)
-
-
-# Custom CSS for better UI and tooltips
 st.markdown("""
     <style>
     .main {background-color: #f0f2f6;}
@@ -100,6 +47,12 @@ st.markdown("""
         visibility: visible;
         opacity: 1;
     }
+    .styled-image {
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        border: 3px solid #4CAF50;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -111,14 +64,24 @@ image_path_sidebar = 'risk.png'
 if not os.path.exists(image_path_main):
     st.error(f"Image file not found: {image_path_main}")
 else:
-    st.image(image_path_main, use_column_width=True)
+    # Wrap the image with a div to apply the custom class
+    st.markdown(f"""
+    <div class="styled-image">
+        <img src="{image_path_main}" alt="Main Image" style="width: 100%; height: auto;">
+    </div>
+    """, unsafe_allow_html=True)
 
 # Display image in sidebar
 with st.sidebar:
     if not os.path.exists(image_path_sidebar):
         st.error(f"Sidebar image file not found: {image_path_sidebar}")
     else:
-        st.image(image_path_sidebar)
+        # Wrap the sidebar image with a div to apply the custom class
+        st.markdown(f"""
+        <div class="styled-image">
+            <img src="{image_path_sidebar}" alt="Sidebar Image" style="width: 100%; height: auto;">
+        </div>
+        """, unsafe_allow_html=True)
 
 # Sector and Portfolio files mapping
 SECTOR_FILES = {
