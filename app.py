@@ -463,6 +463,11 @@ with st.sidebar.expander("Danh mục đầu tư", expanded=True):
     </div>
     """, unsafe_allow_html=True)
 
+import streamlit as st
+import pandas as pd
+import numpy as np
+from vnstock import stock_historical_data
+
 class VN30:
     def __init__(self, symbols=None):
         if symbols is None:
@@ -592,6 +597,7 @@ with tabs[1]:
         vn30_test.display_stock_status(vn30_stocks_test, crash_threshold)
     else:
         st.error("Không có dữ liệu cho ngày đã chọn.")
+
 
 
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
