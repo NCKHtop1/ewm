@@ -11,6 +11,47 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
+st.markdown("""
+    <style>
+    .button {
+        width: 90px;
+        height: 90px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.1);
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+        color: #fff;
+        font-size: 40px;
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        border: none;
+    }
+
+    .backdrop {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        background-color: rgb(36, 33, 228);
+        z-index: -1;
+        top: 50%;
+        left: 50%;
+        border-radius: 15px;
+        transform: translateX(-50%) translateY(-50%);
+        transition: all ease-in-out 0.5s;
+    }
+
+    .button:hover + .backdrop {
+        top: 48%;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
+        transform: rotate(15deg) translateX(-50%) translateY(-50%);
+    }
+
+    .button:active, .button:active + .backdrop {
+        box-shadow: none;
+    }
+    </style>
+""", unsafe_allow_html=True)
 # Custom CSS for better UI and tooltips
 st.markdown("""
     <style>
