@@ -475,10 +475,11 @@ class VN30:
             self.symbols = symbols
 
     def fetch_data(self, symbol, date):
-        # Fetch data from VNStock for a specific date
+        # Thêm thông tin để kiểm tra xem dữ liệu có được truy xuất đúng không
         try:
             start_date = date.strftime('%Y-%m-%d')
-            end_date = start_date  # Fetch data for a single day
+            end_date = start_date
+            st.write(f"Fetching data for {symbol} on {start_date}")
             data = stock_historical_data(symbol=symbol, start_date=start_date, end_date=end_date, resolution='1D')
             df = pd.DataFrame(data)
             if not df.empty:
@@ -486,11 +487,13 @@ class VN30:
                 df.set_index('time', inplace=True)
                 df.index.name = 'Datetime'
                 df['StockSymbol'] = symbol
+                st.write(f"Fetched data for {symbol}: {df.head()}")
                 return df
             else:
+                st.write(f"No data found for {symbol} on {start_date}")
                 return pd.DataFrame()
         except Exception as e:
-            print(f"Error fetching data for {symbol} on {date}: {e}")
+            st.error(f"Error fetching data for {symbol} on {date}: {e}")
             return pd.DataFrame()
 
     def analyze_stocks(self, selected_symbols, crash_threshold, date):
@@ -579,17 +582,12 @@ with tabs[0]:
 with tabs[1]:
     st.write("Truy vấn dữ liệu cho ngày 01/04/2024")
     
-    # Giả định ngày này là '2024-04-01'
     test_date = pd.Timestamp('2024-04-01')
-    
-    # Tạo một instance mới của VN30 để lấy dữ liệu cho ngày 01/04/2024
     vn30_test = VN30()
 
-    # Lấy dữ liệu cho ngày 01/04/2024
     vn30_stocks_test = vn30_test.analyze_stocks(selected_symbols, crash_threshold, date=test_date)
 
     if not vn30_stocks_test.empty:
-        # Hiển thị kết quả cho ngày 01/04/2024
         st.subheader('Kết quả phân tích cho ngày 01/04/2024')
         vn30_test.display_stock_status(vn30_stocks_test, crash_threshold)
     else:
