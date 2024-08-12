@@ -57,31 +57,22 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Images for the app
-image_path_main = 'stock.png'
-image_path_sidebar = 'risk.png'
+image_path_main = 'risk.png'
+image_path_sidebar = 'stock.png'
 
 # Check if the main image exists
 if not os.path.exists(image_path_main):
     st.error(f"Image file not found: {image_path_main}")
 else:
-    # Wrap the image with a div to apply the custom class
-    st.markdown(f"""
-    <div class="styled-image">
-        <img src="{image_path_main}" alt="Main Image" style="width: 100%; height: auto;">
-    </div>
-    """, unsafe_allow_html=True)
+    # Load and display the image with streamlit's st.image function
+    st.image(image_path_main, caption="Main Image", use_column_width=True)
 
 # Display image in sidebar
 with st.sidebar:
     if not os.path.exists(image_path_sidebar):
         st.error(f"Sidebar image file not found: {image_path_sidebar}")
     else:
-        # Wrap the sidebar image with a div to apply the custom class
-        st.markdown(f"""
-        <div class="styled-image">
-            <img src="{image_path_sidebar}" alt="Sidebar Image" style="width: 100%; height: auto;">
-        </div>
-        """, unsafe_allow_html=True)
+        st.image(image_path_sidebar, caption="Sidebar Image", use_column_width=True)
 
 # Sector and Portfolio files mapping
 SECTOR_FILES = {
