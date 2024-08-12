@@ -171,9 +171,16 @@ def ensure_datetime_compatibility(start_date, end_date, df):
 # # Fetch and combine data
 # combined_data = fetch_and_combine_data(symbol, file_path, start_date, end_date)
 # print(combined_data)
-# Check if VNINDEX is selected and add specific crash dates
-# Kiểm tra nếu người dùng đã chọn danh mục trong sidebar
-# Load dữ liệu từ file VNINDEX.csv
+
+def load_detailed_data(selected_stocks):
+    data = pd.DataFrame()
+    for sector, file_path in SECTOR_FILES.items():
+        df = load_data(file_path)
+        if not df.empty:
+            sector_data = df[df['StockSymbol'].isin(selected_stocks)]
+            data = pd.concat([data, sector_data])
+    return data
+
 
 def calculate_VaR(returns, confidence_level=0.95):
     if not isinstance(returns, pd.Series):
@@ -463,142 +470,15 @@ with st.sidebar.expander("Danh mục đầu tư", expanded=True):
     </div>
     """, unsafe_allow_html=True)
 
-import streamlit as st
-import pandas as pd
-import numpy as np
-from vnstock import stock_historical_data
-
-class VN30:
-    def __init__(self, symbols=None):
-        if symbols is None:
-            self.symbols = [
-                "ACB", "BCM", "BID", "BVH", "CTG", "FPT", "GAS", "GVR", "HDB", "HPG",
-                "MBB", "MSN", "MWG", "PLX", "POW", "SAB", "SHB", "SSB", "SSI", "STB",
-                "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
-            ]
-        else:
-            self.symbols = symbols
-
-    def fetch_data(self, symbol, date):
-        # Thêm thông tin để kiểm tra xem dữ liệu có được truy xuất đúng không
-        try:
-            start_date = date.strftime('%Y-%m-%d')
-            end_date = start_date
-            st.write(f"Fetching data for {symbol} on {start_date}")
-            data = stock_historical_data(symbol=symbol, start_date=start_date, end_date=end_date, resolution='1D')
-            df = pd.DataFrame(data)
-            if not df.empty:
-                df['time'] = pd.to_datetime(df['time'])
-                df.set_index('time', inplace=True)
-                df.index.name = 'Datetime'
-                df['StockSymbol'] = symbol
-                st.write(f"Fetched data for {symbol}: {df.head()}")
-                return df
-            else:
-                st.write(f"No data found for {symbol} on {start_date}")
-                return pd.DataFrame()
-        except Exception as e:
-            st.error(f"Error fetching data for {symbol} on {date}: {e}")
-            return pd.DataFrame()
-
-    def analyze_stocks(self, selected_symbols, crash_threshold, date):
-        results = []
-        for symbol in selected_symbols:
-            stock_data = self.fetch_data(symbol, date)
-            if not stock_data.empty:
-                stock_data = self.calculate_crash_risk(stock_data, crash_threshold)
-                results.append(stock_data)
-        if results:
-            combined_data = pd.concat(results)
-            return combined_data
-        else:
-            return pd.DataFrame()
-
-    def calculate_crash_risk(self, df, crash_threshold):
-        if df.empty:
-            return df
-
-        df['returns'] = df['close'].pct_change()
-        df['VaR'] = df['returns'].rolling(window=252).quantile(0.05)
-        df['VaR'].fillna(0, inplace=True)  # Ensure no NaN values
-
-        peaks, _ = find_peaks(df['close'])
-        df['Peaks'] = df.index.isin(df.index[peaks])
-
-        peak_prices = df['close'].where(df['Peaks']).ffill()
-        drawdowns = (peak_prices - df['close']) / peak_prices
-
-        df['Crash'] = drawdowns >= crash_threshold
-        df['Crash'] = df['Crash'] & (df.index.weekday == 4)  # Check if it's Friday
-
-        return df
-
-    def display_stock_status(self, df, crash_threshold):
-        if df.empty:
-            st.error("No data available.")
-            return
-
-        if 'Crash' not in df.columns or 'StockSymbol' not in df.columns:
-            st.error("Data is missing necessary columns ('Crash' or 'StockSymbol').")
-            return
-
-        color_map = {False: '#4CAF50', True: '#FF5733'}
-        n_cols = 5
-        n_rows = (len(df['StockSymbol'].unique()) + n_cols - 1) // n_cols
-
-        for i in range(n_rows):
-            cols = st.columns(n_cols)
-            for j, col in enumerate(cols):
-                idx = i * n_cols + j
-                if idx < len(df['StockSymbol'].unique()):
-                    stock_symbol = df['StockSymbol'].unique()[idx]
-                    data_row = df[df['StockSymbol'] == stock_symbol].iloc[0]
-                    crash_risk = data_row.get('Crash', False)
-                    color = color_map.get(crash_risk, '#FF5722')
-                    date = data_row.name.strftime('%Y-%m-%d')
-                    price = data_row['close']
-
-                    info = f"<strong>{stock_symbol}</strong><br>{date}<br>Price: {price}<br>{'Crash' if crash_risk else 'No Crash'}"
-
-                    col.markdown(
-                        f"<div style='background-color: {color}; padding: 10px; border-radius: 5px; text-align: center;'>"
-                        f"{info}</div>",
-                        unsafe_allow_html=True
-                    )
-                else:
-                    col.empty()
-
-# Tạo các tab
-tabs = st.tabs(["Danh mục VN30", "Test"])
-
-# Tab 1: Danh mục VN30
-with tabs[0]:
-    vn30_stocks = pd.DataFrame()
-    if 'VN30' in portfolio_options:
-        vn30 = VN30()
-        vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold, date=pd.Timestamp.today())
-        if not vn30_stocks.empty:
-            st.subheader('Cảnh báo sớm cho Danh mục VN30')
-            vn30.display_stock_status(vn30_stocks, crash_threshold)
-    else:
-        st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
-
-# Tab 2: Test với ngày 01/04/2024
-with tabs[1]:
-    st.write("Truy vấn dữ liệu cho ngày 01/04/2024")
-    
-    test_date = pd.Timestamp('2024-04-01')
-    vn30_test = VN30()
-
-    vn30_stocks_test = vn30_test.analyze_stocks(selected_symbols, crash_threshold, date=test_date)
-
-    if not vn30_stocks_test.empty:
-        st.subheader('Kết quả phân tích cho ngày 01/04/2024')
-        vn30_test.display_stock_status(vn30_stocks_test, crash_threshold)
-    else:
-        st.error("Không có dữ liệu cho ngày đã chọn.")
-
-
+# Analyze VN30 stocks if selected
+vn30_stocks = pd.DataFrame()
+if 'VN30' in portfolio_options:
+    vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
+    if not vn30_stocks.empty:
+        st.subheader('Cảnh báo sớm cho Danh mục VN30')
+        vn30.display_stock_status(vn30_stocks, crash_threshold)
+else:
+    st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
 
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
     st.write('Nhập các thông số kiểm tra của bạn:')
