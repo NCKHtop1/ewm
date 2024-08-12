@@ -463,39 +463,63 @@ with st.sidebar.expander("Danh mục đầu tư", expanded=True):
     </div>
     """, unsafe_allow_html=True)
 
-# Tạo các tab
-tabs = st.tabs(["Danh mục VN30", "Test"])
+class VN30:
+    def __init__(self, symbols=None):
+        if symbols is None:
+            self.symbols = [
+                "ACB", "BCM", "BID", "BVH", "CTG", "FPT", "GAS", "GVR", "HDB", "HPG",
+                "MBB", "MSN", "MWG", "PLX", "POW", "SAB", "SHB", "SSB", "SSI", "STB",
+                "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
+            ]
+        else:
+            self.symbols = symbols
 
-with tabs[0]:
-    # Phần hiện có của bạn
-    vn30_stocks = pd.DataFrame()
-    if 'VN30' in portfolio_options:
-        vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
-        if not vn30_stocks.empty:
-            st.subheader('Cảnh báo sớm cho Danh mục VN30')
-            vn30.display_stock_status(vn30_stocks, crash_threshold)
-    else:
-        st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
+    def fetch_data(self, symbol, date=None):
+        if date is None:
+            date = pd.Timestamp.today().strftime('%Y-%m-%d')
+        try:
+            file_path = SECTOR_FILES['VNINDEX']  # Assuming VNINDEX has data for VN30
+            data = pd.read_csv(file_path, parse_dates=['Datetime'])
+            data.set_index('Datetime', inplace=True)
+            daily_data = data.loc[data.index == pd.to_datetime(date)]
+            daily_data['StockSymbol'] = symbol
+            return daily_data
+        except Exception as e:
+            print(f"Error fetching data for {symbol} on {date}: {e}")
+            return pd.DataFrame()
 
+    def analyze_stocks(self, selected_symbols, crash_threshold, date=None):
+        results = []
+        for symbol in selected_symbols:
+            stock_data = self.fetch_data(symbol, date)
+            if not stock_data.empty:
+                stock_data = self.calculate_crash_risk(stock_data, crash_threshold)
+                stock_data['StockSymbol'] = symbol  # Add symbol column
+                results.append(stock_data)
+        if results:
+            combined_data = pd.concat(results)
+            return combined_data
+        else:
+            return pd.DataFrame()
+
+# Modify the tabs configuration to use the modified class and methods
 with tabs[1]:
     st.write("Truy vấn dữ liệu cho ngày 01/04/2024")
-    # Giả định ngày này là '2024-04-01'
-    test_date = pd.Timestamp('2024-04-01')
+    test_date = '2024-04-01'
     
-    # Lấy dữ liệu cho ngày này từ hàm phân tích mà bạn đã có
-    vn30_stocks_test = vn30.analyze_stocks(selected_symbols, crash_threshold)
+    # Initialize the VN30 class
+    vn30 = VN30()
     
-    # Giả sử một số cổ phiếu bị crash trong ngày này
+    # Analyze stocks for the test date
+    vn30_stocks_test = vn30.analyze_stocks(selected_symbols, crash_threshold, date=test_date)
+    
     if not vn30_stocks_test.empty:
-        # Bổ sung dữ liệu crash cho ngày này
-        crash_stocks = ['ACB', 'MBB', 'VNM']  # Giả sử những cổ phiếu này crash
-        vn30_stocks_test['Crash'] = vn30_stocks_test['StockSymbol'].isin(crash_stocks)
-        
-        # Hiển thị kết quả
+        # Display the results
         st.subheader('Kết quả phân tích cho ngày 01/04/2024')
-        vn30.display_stock_status(vn30_stocks_test[test_date:test_date], crash_threshold)
+        vn30.display_stock_status(vn30_stocks_test, crash_threshold)
     else:
-        st.write("Không có dữ liệu cho ngày đã chọn.")
+        st.error("Không có dữ liệu cho ngày đã chọn.")
+
 
 with st.sidebar.expander("Thông số kiểm tra", expanded=True):
     st.write('Nhập các thông số kiểm tra của bạn:')
