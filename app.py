@@ -522,17 +522,23 @@ with tabs[1]:
     st.write("Truy vấn dữ liệu cho ngày 01/04/2024")
     
     # Giả định ngày này là '2024-04-01'
-    test_date = '2024-04-01'
+    test_date = pd.Timestamp('2024-04-01')
     
-    # Lấy dữ liệu cho ngày này từ hàm phân tích mà bạn đã có
-    vn30_stocks_test = vn30.analyze_stocks(selected_symbols, crash_threshold, date=test_date)
+    # Lấy dữ liệu cho tất cả các ngày
+    vn30_stocks_test = vn30.analyze_stocks(selected_symbols, crash_threshold)
     
     if not vn30_stocks_test.empty:
-        # Hiển thị kết quả cho ngày 01/04/2024
-        st.subheader('Kết quả phân tích cho ngày 01/04/2024')
-        vn30.display_stock_status(vn30_stocks_test, crash_threshold)
+        # Lọc dữ liệu cho ngày 01/04/2024
+        vn30_stocks_test = vn30_stocks_test.loc[vn30_stocks_test.index == test_date]
+
+        if not vn30_stocks_test.empty:
+            # Hiển thị kết quả cho ngày 01/04/2024
+            st.subheader('Kết quả phân tích cho ngày 01/04/2024')
+            vn30.display_stock_status(vn30_stocks_test, crash_threshold)
+        else:
+            st.error("Không có dữ liệu cho ngày đã chọn.")
     else:
-        st.error("Không có dữ liệu cho ngày đã chọn.")
+        st.error("Không có dữ liệu cho các cổ phiếu đã chọn.")
 
 
 
