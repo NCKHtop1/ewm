@@ -11,6 +11,7 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
+# Custom CSS for better UI and tooltips
 st.markdown("""
     <style>
     .main {background-color: #f0f2f6;}
@@ -47,32 +48,25 @@ st.markdown("""
         visibility: visible;
         opacity: 1;
     }
-    .styled-image {
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        margin-bottom: 20px;
-        border: 3px solid #4CAF50;
-    }
     </style>
     """, unsafe_allow_html=True)
 
 # Images for the app
-image_path_main = 'risk.png'
-image_path_sidebar = 'stock.png'
+image_path_main = 'stock.png'
+image_path_sidebar = 'risk.png'
 
 # Check if the main image exists
 if not os.path.exists(image_path_main):
     st.error(f"Image file not found: {image_path_main}")
 else:
-    # Load and display the image with streamlit's st.image function
-    st.image(image_path_main, caption="Main Image", use_column_width=True)
+    st.image(image_path_main, use_column_width=True)
 
 # Display image in sidebar
 with st.sidebar:
     if not os.path.exists(image_path_sidebar):
         st.error(f"Sidebar image file not found: {image_path_sidebar}")
     else:
-        st.image(image_path_sidebar, caption="Sidebar Image", use_column_width=True)
+        st.image(image_path_sidebar)
 
 # Sector and Portfolio files mapping
 SECTOR_FILES = {
