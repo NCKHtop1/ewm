@@ -174,17 +174,18 @@ def ensure_datetime_compatibility(start_date, end_date, df):
 # Check if VNINDEX is selected and add specific crash dates
 # Kiểm tra nếu người dùng đã chọn danh mục trong sidebar
 # Load dữ liệu từ file VNINDEX.csv
-if 'VNINDEX' in selected_stocks:
-    combined_data = load_detailed_data(['VNINDEX'])
 
-    # Thêm các ngày crash cụ thể vào dữ liệu VNINDEX
+# Tải dữ liệu từ các file liên quan
+combined_data = load_detailed_data(selected_stocks)
+
+# Kiểm tra nếu VNINDEX nằm trong danh sách selected_stocks
+if 'VNINDEX' in selected_stocks:
     specific_crash_dates = ['2024-04-15', '2024-04-16', '2024-04-17']
     for date_str in specific_crash_dates:
         date = pd.Timestamp(date_str)
         if date in combined_data.index:
             combined_data.at[date, 'Crash'] = True
-else:
-    combined_data = load_detailed_data(selected_stocks)
+
 def calculate_VaR(returns, confidence_level=0.95):
     if not isinstance(returns, pd.Series):
         returns = pd.Series(returns)
