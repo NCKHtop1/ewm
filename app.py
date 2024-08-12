@@ -171,6 +171,38 @@ def ensure_datetime_compatibility(start_date, end_date, df):
 # # Fetch and combine data
 # combined_data = fetch_and_combine_data(symbol, file_path, start_date, end_date)
 # print(combined_data)
+# Check if VNINDEX is selected and add specific crash dates
+if 'VNINDEX' in portfolio_options:
+    specific_crash_dates = ['2024-04-15', '2024-04-16', '2024-04-17']
+    
+    # Fetch VNINDEX data
+    vnindex_data = load_data(SECTOR_FILES['VNINDEX'])
+    
+    if not vnindex_data.empty:
+        # Ensure no duplicate indices and sort by date
+        vnindex_data = vnindex_data[~vnindex_data.index.duplicated(keep='first')]
+        vnindex_data = vnindex_data.sort_index()
+        
+        # Add crashes for specific dates
+        for date_str in specific_crash_dates:
+            date = pd.Timestamp(date_str)
+            if date in vnindex_data.index:
+                vnindex_data.at[date, 'Crash'] = True
+        
+        # Proceed with further analysis or display
+        st.subheader('Cảnh báo sớm cho VNINDEX')
+        vnindex_data = calculate_indicators_and_crashes(vnindex_data, strategies, crash_threshold)
+        portfolio = run_backtest(vnindex_data, init_cash, fees, direction, t_plus)
+        
+        # Display the VNINDEX analysis
+        if portfolio is not None and not portfolio.orders.empty:
+            vnindex_data['StockSymbol'] = 'VNINDEX'
+            vn30.display_stock_status(vnindex_data, crash_threshold)
+            st.write(portfolio.stats())
+        else:
+            st.warning("Không có giao dịch nào được thực hiện trên VNINDEX.")
+else:
+    st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
 
 def load_detailed_data(selected_stocks):
     data = pd.DataFrame()
