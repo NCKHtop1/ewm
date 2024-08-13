@@ -476,6 +476,8 @@ if 'VN30' in portfolio_options:
     vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
     if not vn30_stocks.empty:
         st.subheader('Cảnh báo sớm cho Danh mục VN30')
+        st.write("Kết quả mô hình được mô hình học máy dự báo trả về kết quả trước xảy ra crash 2 tuần.")
+        st.write("Để xem thêm cụ thể kết quả mua bán (nếu cổ phiếu bị crash), vui lòng backtest với mã cổ phiếu đó.")
         vn30.display_stock_status(vn30_stocks, crash_threshold)
 else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
