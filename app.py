@@ -188,6 +188,7 @@ def calculate_VaR(returns, confidence_level=0.95):
     var = np.percentile(returns, 100 * (1 - confidence_level))
     return var
 
+
 class VN30:
     def __init__(self):
         self.symbols = [
@@ -196,13 +197,12 @@ class VN30:
             "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
         ]
 
-    def fetch_data(self, symbol, date=None):
-        if date is None:
-            date = pd.Timestamp.today().strftime('%Y-%m-%d')
+    def fetch_data(self, symbol):
+        today = pd.Timestamp.today().strftime('%Y-%m-%d')
         data = stock_historical_data(
             symbol=symbol,
-            start_date=date,
-            end_date=date,
+            start_date=today,
+            end_date=today,
             resolution='1D',
             type='stock',
             beautify=True,
@@ -218,23 +218,6 @@ class VN30:
             df['Datetime'] = pd.to_datetime(df['Datetime'], errors='coerce')
             return df.set_index('Datetime', drop=True)
         return pd.DataFrame()
-
-    def analyze_stocks(self, selected_symbols, crash_threshold):
-        results = []
-        for symbol in selected_symbols:
-            stock_data = self.fetch_data(symbol)
-            if not stock_data.empty:
-                stock_data = self.calculate_crash_risk(stock_data, crash_threshold)
-                stock_data['StockSymbol'] = symbol
-                results.append(stock_data)
-        if results:
-            combined_data = pd.concat(results)
-            return combined_data
-        else:
-            return pd.DataFrame()
-
-# Setup logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
     def analyze_stocks(self, selected_symbols, crash_threshold):
         results = []
@@ -488,7 +471,6 @@ with st.sidebar.expander("Danh mục đầu tư", expanded=True):
     """, unsafe_allow_html=True)
 
 # Analyze VN30 stocks if selected
-vn30 = VN30()
 vn30_stocks = pd.DataFrame()
 if 'VN30' in portfolio_options:
     vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
