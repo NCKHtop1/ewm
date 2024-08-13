@@ -188,7 +188,6 @@ def calculate_VaR(returns, confidence_level=0.95):
     var = np.percentile(returns, 100 * (1 - confidence_level))
     return var
 
-
 class VN30:
     def __init__(self):
         self.symbols = [
@@ -243,7 +242,6 @@ class VN30:
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-
 
     def analyze_stocks(self, selected_symbols, crash_threshold):
         results = []
