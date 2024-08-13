@@ -197,27 +197,28 @@ class VN30:
             "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
         ]
 
-    def fetch_data(self, symbol):
-        today = pd.Timestamp.today().strftime('%Y-%m-%d')
-        data = stock_historical_data(
-            symbol=symbol,
-            start_date=today,
-            end_date=today,
-            resolution='1D',
-            type='stock',
-            beautify=True,
-            decor=False,
-            source='DNSE'
-        )
-        df = pd.DataFrame(data)
-        if not df.empty:
-            if 'time' in df.columns:
-                df.rename(columns={'time': 'Datetime'}, inplace=True)
-            elif 'datetime' in df.columns:
-                df.rename(columns={'datetime': 'Datetime'}, inplace=True)
-            df['Datetime'] = pd.to_datetime(df['Datetime'], errors='coerce')
-            return df.set_index('Datetime', drop=True)
-        return pd.DataFrame()
+def fetch_data(self, symbol, date=None):
+    if date is None:
+        date = pd.Timestamp.today().strftime('%Y-%m-%d')
+    data = stock_historical_data(
+        symbol=symbol,
+        start_date=date,
+        end_date=date,
+        resolution='1D',
+        type='stock',
+        beautify=True,
+        decor=False,
+        source='DNSE'
+    )
+    df = pd.DataFrame(data)
+    if not df.empty:
+        if 'time' in df.columns:
+            df.rename(columns={'time': 'Datetime'}, inplace=True)
+        elif 'datetime' in df.columns:
+            df.rename(columns={'datetime': 'Datetime'}, inplace=True)
+        df['Datetime'] = pd.to_datetime(df['Datetime'], errors='coerce')
+        return df.set_index('Datetime', drop=True)
+    return pd.DataFrame()
 
     def analyze_stocks(self, selected_symbols, crash_threshold):
         results = []
