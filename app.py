@@ -197,28 +197,53 @@ class VN30:
             "TCB", "TPB", "VCB", "VHM", "VIB", "VIC", "VJC", "VNM", "VPB", "VRE"
         ]
 
-def fetch_data(self, symbol, date=None):
-    if date is None:
-        date = pd.Timestamp.today().strftime('%Y-%m-%d')
-    data = stock_historical_data(
-        symbol=symbol,
-        start_date=date,
-        end_date=date,
-        resolution='1D',
-        type='stock',
-        beautify=True,
-        decor=False,
-        source='DNSE'
-    )
-    df = pd.DataFrame(data)
-    if not df.empty:
-        if 'time' in df.columns:
-            df.rename(columns={'time': 'Datetime'}, inplace=True)
-        elif 'datetime' in df.columns:
-            df.rename(columns={'datetime': 'Datetime'}, inplace=True)
-        df['Datetime'] = pd.to_datetime(df['Datetime'], errors='coerce')
-        return df.set_index('Datetime', drop=True)
-    return pd.DataFrame()
+    def fetch_data(self, symbol, date=None):
+        if date is None:
+            date = pd.Timestamp.today().strftime('%Y-%m-%d')
+        data = stock_historical_data(
+            symbol=symbol,
+            start_date=date,
+            end_date=date,
+            resolution='1D',
+            type='stock',
+            beautify=True,
+            decor=False,
+            source='DNSE'
+        )
+        df = pd.DataFrame(data)
+        if not df.empty:
+            if 'time' in df.columns:
+                df.rename(columns={'time': 'Datetime'}, inplace=True)
+            elif 'datetime' in df.columns:
+                df.rename(columns={'datetime': 'Datetime'}, inplace=True)
+            df['Datetime'] = pd.to_datetime(df['Datetime'], errors='coerce')
+            return df.set_index('Datetime', drop=True)
+        return pd.DataFrame()
+
+    def analyze_stocks(self, selected_symbols, crash_threshold):
+        results = []
+        for symbol in selected_symbols:
+            try:
+                stock_data = self.fetch_data(symbol)
+                if stock_data.empty:
+                    logging.warning(f"No data available for symbol: {symbol}")
+                    continue
+                # Assume some analysis is done here
+                # Dummy implementation:
+                analyzed_data = stock_data  # Replace with actual analysis logic
+                results.append(analyzed_data)
+            except Exception as e:
+                logging.error(f"Failed to analyze stock {symbol}: {e}")
+                continue
+        if results:
+            combined_data = pd.concat(results)
+            return combined_data
+        else:
+            return pd.DataFrame()
+
+# Setup logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
     def analyze_stocks(self, selected_symbols, crash_threshold):
         results = []
@@ -472,6 +497,7 @@ with st.sidebar.expander("Danh mục đầu tư", expanded=True):
     """, unsafe_allow_html=True)
 
 # Analyze VN30 stocks if selected
+vn30 = VN30()
 vn30_stocks = pd.DataFrame()
 if 'VN30' in portfolio_options:
     vn30_stocks = vn30.analyze_stocks(selected_symbols, crash_threshold)
