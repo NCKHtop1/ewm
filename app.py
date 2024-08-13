@@ -222,18 +222,11 @@ class VN30:
     def analyze_stocks(self, selected_symbols, crash_threshold):
         results = []
         for symbol in selected_symbols:
-            try:
-                stock_data = self.fetch_data(symbol)
-                if stock_data.empty:
-                    logging.warning(f"No data available for symbol: {symbol}")
-                    continue
-                # Assume some analysis is done here
-                # Dummy implementation:
-                analyzed_data = stock_data  # Replace with actual analysis logic
-                results.append(analyzed_data)
-            except Exception as e:
-                logging.error(f"Failed to analyze stock {symbol}: {e}")
-                continue
+            stock_data = self.fetch_data(symbol)
+            if not stock_data.empty:
+                stock_data = self.calculate_crash_risk(stock_data, crash_threshold)
+                stock_data['StockSymbol'] = symbol
+                results.append(stock_data)
         if results:
             combined_data = pd.concat(results)
             return combined_data
