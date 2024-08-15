@@ -722,22 +722,29 @@ if selected_stocks:
 else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
 
+import numpy as np
+
+# Function to run Monte Carlo simulation
 def monte_carlo_simulation(df, num_simulations=1000, num_days=252):
     # Extract the daily returns
     daily_returns = df['close'].pct_change().dropna()
     
+    # Calculate mean and standard deviation of returns
+    mu = daily_returns.mean()
+    sigma = daily_returns.std()
+    
     # Initialize an empty array to hold the simulations
     simulations = np.zeros((num_simulations, num_days))
     
+    # Set the initial price to the last close price
+    start_price = df['close'].iloc[-1]
+    
     # Run the Monte Carlo simulation
     for i in range(num_simulations):
-        # Generate random returns for each day
-        random_returns = np.random.choice(daily_returns, size=num_days)
-        # Set the initial price to the last close price
-        simulations[i, 0] = df['close'].iloc[-1]
-        # Simulate the price for each subsequent day
-        for j in range(1, num_days):
-            simulations[i, j] = simulations[i, j-1] * (1 + random_returns[j-1])
+        # Generate daily returns for each path
+        daily_shocks = np.random.normal(mu, sigma, num_days)
+        price_path = start_price * (1 + daily_shocks).cumprod()
+        simulations[i, :] = price_path
     
     return simulations
 
@@ -752,33 +759,31 @@ with tab6:
     num_simulations = st.slider("Số lượng mô phỏng", min_value=100, max_value=10000, value=1000, step=100)
     num_days = st.slider("Số ngày mô phỏng", min_value=30, max_value=365, value=252, step=1)
     
-    # Run the Monte Carlo simulation
-    simulations = monte_carlo_simulation(df_filtered, num_simulations=num_simulations, num_days=num_days)
+    # Load the VNINDEX sector data
+    vnindex_data = load_data(SECTOR_FILES['VNINDEX'])
     
-    # Calculate the percentiles for plotting
-    mean_simulation = simulations.mean(axis=0)
-    p5 = np.percentile(simulations, 5, axis=0)
-    p95 = np.percentile(simulations, 95, axis=0)
-    
-    # Plot the results
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=np.arange(num_days), y=mean_simulation, mode='lines', name='Mean Simulation', line=dict(color='blue')))
-    fig.add_trace(go.Scatter(x=np.arange(num_days), y=p5, mode='lines', name='5th Percentile', line=dict(color='red', dash='dash')))
-    fig.add_trace(go.Scatter(x=np.arange(num_days), y=p95, mode='lines', name='95th Percentile', line=dict(color='green', dash='dash')))
-    
-    fig.update_layout(
-        title="Monte Carlo Simulation of Future Prices",
-        xaxis_title="Days",
-        yaxis_title="Price",
-        template="plotly_white"
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Display a summary of the results
-    st.markdown("**Summary of Monte Carlo Simulation:**")
-    st.write(f"Số lượng mô phỏng: {num_simulations}")
-    st.write(f"Số ngày mô phỏng: {num_days}")
-    st.write(f"Mean simulated price on day {num_days}: {mean_simulation[-1]:.2f}")
-    st.write(f"5th percentile simulated price on day {num_days}: {p5[-1]:.2f}")
-    st.write(f"95th percentile simulated price on day {num_days}: {p95[-1]:.2f}")
+    # Ensure data is available
+    if not vnindex_data.empty:
+        # Run the Monte Carlo simulation
+        simulations = monte_carlo_simulation(vnindex_data, num_simulations=num_simulations, num_days=num_days)
+        
+        # Plot the results
+        plt.figure(figsize=(10, 6))
+        plt.plot(simulations.T, color='blue', alpha=0.1)
+        plt.title('Monte Carlo Simulation of VNINDEX Prices')
+        plt.xlabel('Time Steps')
+        plt.ylabel('Asset Prices')
+        plt.show()
+
+        st.pyplot(plt)
+        
+        # Display a summary of the results
+        st.markdown("**Summary of Monte Carlo Simulation:**")
+        final_prices = simulations[:, -1]
+        st.write(f"Số lượng mô phỏng: {num_simulations}")
+        st.write(f"Số ngày mô phỏng: {num_days}")
+        st.write(f"Mean simulated price on day {num_days}: {final_prices.mean():.2f}")
+        st.write(f"5th percentile simulated price on day {num_days}: {np.percentile(final_prices, 5):.2f}")
+        st.write(f"95th percentile simulated price on day {num_days}: {np.percentile(final_prices, 95):.2f}")
+    else:
+        st.error("Không có dữ liệu VNINDEX để thực hiện mô phỏng Monte Carlo.")
