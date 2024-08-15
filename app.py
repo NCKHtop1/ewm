@@ -723,54 +723,75 @@ else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
 
 import numpy as np
+import random
 
-# Function to run Monte Carlo simulation
-def monte_carlo_simulation(df, num_simulations=1000, num_days=252):
-    # Extract the daily returns
-    daily_returns = df['close'].pct_change().dropna()
-    
-    # Calculate mean and standard deviation of returns
-    mu = daily_returns.mean()
-    sigma = daily_returns.std()
-    
-    # Initialize an empty array to hold the simulations
+# Function to randomize historical prices
+def randomize_prices(df, probability_up=0.3, max_up_change=0.03, max_down_change=0.03):
+    df_randomized = df.copy()
+    atr = df['close'].rolling(window=14).std()  # Simple approximation using standard deviation
+    for i in range(len(df)):
+        if np.random.rand() < probability_up:
+            df_randomized.iloc[i]['close'] += np.random.uniform(0, max_up_change) * atr.iloc[i]
+        else:
+            df_randomized.iloc[i]['close'] -= np.random.uniform(0, max_down_change) * atr.iloc[i]
+    return df_randomized
+
+# Monte Carlo simulation function with randomized prices
+def monte_carlo_simulation_randomized(df, num_simulations=1000, num_days=252, probability_up=0.3, max_up_change=0.03, max_down_change=0.03):
     simulations = np.zeros((num_simulations, num_days))
-    
-    # Set the initial price to the last close price
     start_price = df['close'].iloc[-1]
-    
-    # Run the Monte Carlo simulation
+
     for i in range(num_simulations):
-        # Generate daily returns for each path
+        # Randomize prices for this simulation
+        df_randomized = randomize_prices(df, probability_up, max_up_change, max_down_change)
+        
+        # Calculate daily returns
+        daily_returns = df_randomized['close'].pct_change().dropna()
+        
+        # Calculate mean and standard deviation
+        mu = daily_returns.mean()
+        sigma = daily_returns.std()
+        
+        # Simulate price path
         daily_shocks = np.random.normal(mu, sigma, num_days)
         price_path = start_price * (1 + daily_shocks).cumprod()
         simulations[i, :] = price_path
-    
+
     return simulations
 
-# Adding the Monte Carlo simulation tab
+# Adding the Monte Carlo simulation with randomized prices tab
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     ["Tóm tắt", "Chi tiết kết quả kiểm thử", "Tổng hợp lệnh mua/bán", "Đường cong giá trị", "Biểu đồ", "Monte Carlo Stress Test"])
 
 with tab6:
-    st.markdown("<h2 style='text-align: center; color: #4CAF50;'>Monte Carlo Stress Test</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: #4CAF50;'>Monte Carlo Stress Test with Randomized Prices</h2>", unsafe_allow_html=True)
     
     # Set up Monte Carlo parameters
     num_simulations = st.slider("Số lượng mô phỏng", min_value=100, max_value=10000, value=1000, step=100)
     num_days = st.slider("Số ngày mô phỏng", min_value=30, max_value=365, value=252, step=1)
+    probability_up = st.slider("Xác suất tăng giá (%)", min_value=0.0, max_value=1.0, value=0.3, step=0.01)
+    max_up_change = st.slider("Mức thay đổi tăng tối đa (%)", min_value=0.0, max_value=1.0, value=0.03, step=0.01)
+    max_down_change = st.slider("Mức thay đổi giảm tối đa (%)", min_value=0.0, max_value=1.0, value=0.03, step=0.01)
     
     # Load the VNINDEX sector data
     vnindex_data = load_data(SECTOR_FILES['VNINDEX'])
     
     # Ensure data is available
     if not vnindex_data.empty:
-        # Run the Monte Carlo simulation
-        simulations = monte_carlo_simulation(vnindex_data, num_simulations=num_simulations, num_days=num_days)
+        # Run the Monte Carlo simulation with randomized prices
+        simulations = monte_carlo_simulation_randomized(
+            vnindex_data, 
+            num_simulations=num_simulations, 
+            num_days=num_days, 
+            probability_up=probability_up, 
+            max_up_change=max_up_change, 
+            max_down_change=max_down_change
+        )
         
         # Plot the results
         plt.figure(figsize=(10, 6))
         plt.plot(simulations.T, color='blue', alpha=0.1)
-        plt.title('Monte Carlo Simulation of VNINDEX Prices')
+        plt.title('Monte Carlo Simulation of VNINDEX Prices with Randomized Prices')
         plt.xlabel('Time Steps')
         plt.ylabel('Asset Prices')
         plt.show()
