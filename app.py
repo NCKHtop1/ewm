@@ -719,6 +719,68 @@ if selected_stocks:
             except Exception as e:
                 if 'tuple index out of range' not in str(e):
                     st.error(f"An unexpected error occurred: {e}")
+import numpy as np
+
+def monte_carlo_simulation(df, num_simulations=1000, num_days=252):
+    # Extract the daily returns
+    daily_returns = df['close'].pct_change().dropna()
+    
+    # Initialize an empty array to hold the simulations
+    simulations = np.zeros((num_simulations, num_days))
+    
+    # Run the Monte Carlo simulation
+    for i in range(num_simulations):
+        # Generate random returns for each day
+        random_returns = np.random.choice(daily_returns, size=num_days)
+        # Set the initial price to the last close price
+        simulations[i, 0] = df['close'].iloc[-1]
+        # Simulate the price for each subsequent day
+        for j in range(1, num_days):
+            simulations[i, j] = simulations[i, j-1] * (1 + random_returns[j-1])
+    
+    return simulations
+
+# Adding the Monte Carlo simulation tab
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    ["Tóm tắt", "Chi tiết kết quả kiểm thử", "Tổng hợp lệnh mua/bán", "Đường cong giá trị", "Biểu đồ", "Monte Carlo Stress Test"])
+
+with tab6:
+    st.markdown("<h2 style='text-align: center; color: #4CAF50;'>Monte Carlo Stress Test</h2>", unsafe_allow_html=True)
+    
+    # Set up Monte Carlo parameters
+    num_simulations = st.slider("Số lượng mô phỏng", min_value=100, max_value=10000, value=1000, step=100)
+    num_days = st.slider("Số ngày mô phỏng", min_value=30, max_value=365, value=252, step=1)
+    
+    # Run the Monte Carlo simulation
+    simulations = monte_carlo_simulation(df_filtered, num_simulations=num_simulations, num_days=num_days)
+    
+    # Calculate the percentiles for plotting
+    mean_simulation = simulations.mean(axis=0)
+    p5 = np.percentile(simulations, 5, axis=0)
+    p95 = np.percentile(simulations, 95, axis=0)
+    
+    # Plot the results
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=np.arange(num_days), y=mean_simulation, mode='lines', name='Mean Simulation', line=dict(color='blue')))
+    fig.add_trace(go.Scatter(x=np.arange(num_days), y=p5, mode='lines', name='5th Percentile', line=dict(color='red', dash='dash')))
+    fig.add_trace(go.Scatter(x=np.arange(num_days), y=p95, mode='lines', name='95th Percentile', line=dict(color='green', dash='dash')))
+    
+    fig.update_layout(
+        title="Monte Carlo Simulation of Future Prices",
+        xaxis_title="Days",
+        yaxis_title="Price",
+        template="plotly_white"
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Display a summary of the results
+    st.markdown("**Summary of Monte Carlo Simulation:**")
+    st.write(f"Số lượng mô phỏng: {num_simulations}")
+    st.write(f"Số ngày mô phỏng: {num_days}")
+    st.write(f"Mean simulated price on day {num_days}: {mean_simulation[-1]:.2f}")
+    st.write(f"5th percentile simulated price on day {num_days}: {p5[-1]:.2f}")
+    st.write(f"95th percentile simulated price on day {num_days}: {p95[-1]:.2f}")
 
 else:
     st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
