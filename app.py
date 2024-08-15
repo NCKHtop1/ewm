@@ -719,7 +719,8 @@ if selected_stocks:
             except Exception as e:
                 if 'tuple index out of range' not in str(e):
                     st.error(f"An unexpected error occurred: {e}")
-import numpy as np
+else:
+    st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
 
 def monte_carlo_simulation(df, num_simulations=1000, num_days=252):
     # Extract the daily returns
@@ -781,6 +782,3 @@ with tab6:
     st.write(f"Mean simulated price on day {num_days}: {mean_simulation[-1]:.2f}")
     st.write(f"5th percentile simulated price on day {num_days}: {p5[-1]:.2f}")
     st.write(f"95th percentile simulated price on day {num_days}: {p95[-1]:.2f}")
-
-else:
-    st.write("Vui lòng chọn danh mục hoặc cổ phiếu trong ngành để xem kết quả.")
