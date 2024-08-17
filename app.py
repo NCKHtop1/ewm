@@ -42,8 +42,7 @@ visit_count += 1
 # Save the updated visit count
 save_visit_count(visit_count)
 
-# Display the visit count (multiplied by 3 as required)
-multiplied_visit_count = visit_count * 3
+# Display the visit count (multiplied by 3 as req1
 
 # Display the visit count in the app
 st.write(f"Lượt truy cập: {multiplied_visit_count}")
