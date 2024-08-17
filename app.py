@@ -11,14 +11,18 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
-
 # Initialize a visit counter if it doesn't exist
 if 'visit_count' not in st.session_state:
     st.session_state.visit_count = 0
+
+# Increment the visit count
 st.session_state.visit_count += 1
 
 # Multiply the visit count by 3
 multiplied_visit_count = st.session_state.visit_count * 3
+
+# Display the visit count in the app (not as a watermark)
+st.write(f"Lượt truy cập: {multiplied_visit_count}")
 
 # CSS for watermarking the visit counter
 st.markdown(f"""
