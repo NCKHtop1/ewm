@@ -11,13 +11,14 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
+
 # Initialize a visit counter if it doesn't exist
-if 'visit_count' not in session_state:
-    session_state.visit_count = 0
-session_state.visit_count += 1
+if 'visit_count' not in st.session_state:
+    st.session_state.visit_count = 0
+st.session_state.visit_count += 1
 
 # Multiply the visit count by 3
-multiplied_visit_count = session_state.visit_count * 3
+multiplied_visit_count = st.session_state.visit_count * 3
 
 # CSS for watermarking the visit counter
 st.markdown(f"""
@@ -35,6 +36,7 @@ st.markdown(f"""
         Visits: {multiplied_visit_count}
     </div>
     """, unsafe_allow_html=True)
+
 # Custom CSS for better UI and tooltips
 st.markdown("""
     <style>
