@@ -21,8 +21,8 @@ def get_visit_count():
         with open(visit_count_file, "r") as f:
             count = int(f.read())
             # Ensure the count starts at least from 200
-            if count < 200:
-                return 200
+            if count < 475:
+                return 475
             return count
     else:
         # Return 200 if the file does not exist
