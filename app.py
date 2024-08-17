@@ -26,7 +26,7 @@ def get_visit_count():
             return count
     else:
         # Return 200 if the file does not exist
-        return 200
+        return 475
 
 # Function to save the visit count to the file
 def save_visit_count(count):
