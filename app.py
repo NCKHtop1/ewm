@@ -10,7 +10,32 @@ import pandas_ta as ta
 from vnstock import stock_historical_data
 import base64
 import logging
+import streamlit.session_state as session_state
 
+# Initialize a visit counter if it doesn't exist
+if 'visit_count' not in session_state:
+    session_state.visit_count = 0
+session_state.visit_count += 1
+
+# Multiply the visit count by 3
+multiplied_visit_count = session_state.visit_count * 3
+
+# CSS for watermarking the visit counter
+st.markdown(f"""
+    <style>
+    .watermark {{
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        z-index: 100;
+    }}
+    </style>
+    <div class="watermark">
+        Visits: {multiplied_visit_count}
+    </div>
+    """, unsafe_allow_html=True)
 # Custom CSS for better UI and tooltips
 st.markdown("""
     <style>
