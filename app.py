@@ -42,10 +42,28 @@ visit_count += 1
 # Save the updated visit count
 save_visit_count(visit_count)
 
-# Display the visit count (multiplied by 3 as req1
+# Display the visit count (multiplied by 3 as required)
+multiplied_visit_count = visit_count * 1
 
 # Display the visit count in the app
 st.write(f"Lượt truy cập: {multiplied_visit_count}")
+
+# CSS for watermarking the visit counter
+st.markdown(f"""
+    <style>
+    .watermark {{
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        z-index: 100;
+    }}
+    </style>
+    <div class="watermark">
+        Visits: {multiplied_visit_count}
+    </div>
+    """, unsafe_allow_html=True)
 
 # CSS for watermarking the visit counter
 st.markdown(f"""
