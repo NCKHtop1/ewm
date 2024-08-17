@@ -11,17 +11,35 @@ from vnstock import stock_historical_data
 import base64
 import logging
 
-# Initialize a visit counter if it doesn't exist
-if 'visit_count' not in st.session_state:
-    st.session_state.visit_count = 0
+# Define the file to store visit count
+visit_count_file = "visit_count.txt"
 
-# Increment the visit count
-st.session_state.visit_count += 1
+# Function to read visit count from the file
+def get_visit_count():
+    if os.path.exists(visit_count_file):
+        with open(visit_count_file, "r") as f:
+            return int(f.read())
+    else:
+        return 0
 
-# Multiply the visit count by 3
-multiplied_visit_count = st.session_state.visit_count * 3
+# Function to save the visit count to the file
+def save_visit_count(count):
+    with open(visit_count_file, "w") as f:
+        f.write(str(count))
 
-# Display the visit count in the app (not as a watermark)
+# Load visit count from the file
+visit_count = get_visit_count()
+
+# Update the visit count
+visit_count += 1
+
+# Save the updated visit count
+save_visit_count(visit_count)
+
+# Display the visit count (multiplied by 3 as required)
+multiplied_visit_count = visit_count * 3
+
+# Display the visit count in the app
 st.write(f"Lượt truy cập: {multiplied_visit_count}")
 
 # CSS for watermarking the visit counter
