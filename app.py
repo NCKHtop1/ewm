@@ -10,7 +10,6 @@ import pandas_ta as ta
 from vnstock import stock_historical_data
 import base64
 import logging
-import streamlit.session_state as session_state
 
 # Initialize a visit counter if it doesn't exist
 if 'visit_count' not in session_state:
