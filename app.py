@@ -10,6 +10,67 @@ import pandas_ta as ta
 from vnstock import stock_historical_data
 import base64
 import logging
+import random
+
+# Function to generate fake sentiment score
+def generate_fake_sentiment():
+    return round(random.uniform(-1, 1), 2)
+
+# Function to create a fake sentiment description based on the score
+def describe_sentiment(score):
+    if score > 0.5:
+        return "Very Positive"
+    elif score > 0:
+        return "Positive"
+    elif score == 0:
+        return "Neutral"
+    elif score > -0.5:
+        return "Negative"
+    else:
+        return "Very Negative"
+
+# Add a section to display fake sentiment analysis in the sidebar or main page
+st.sidebar.subheader("Sentiment Analysis (Fake)")
+
+# Generate fake sentiment data for selected stocks
+sentiment_data = {}
+for stock in selected_stocks:
+    sentiment_score = generate_fake_sentiment()
+    sentiment_data[stock] = {
+        "Score": sentiment_score,
+        "Description": describe_sentiment(sentiment_score)
+    }
+
+# Display the sentiment data
+for stock, sentiment in sentiment_data.items():
+    st.sidebar.markdown(f"**{stock}**")
+    st.sidebar.markdown(f"Sentiment Score: {sentiment['Score']}")
+    st.sidebar.markdown(f"Sentiment Description: {sentiment['Description']}")
+    st.sidebar.markdown("---")
+
+# You can also add a sentiment chart in the main page
+if selected_stocks:
+    st.subheader("Sentiment Analysis Overview (Fake)")
+    sentiment_df = pd.DataFrame.from_dict(sentiment_data, orient='index')
+
+    # Plot the sentiment scores
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=sentiment_df.index,
+        y=sentiment_df['Score'],
+        text=sentiment_df['Description'],
+        marker_color=sentiment_df['Score'].apply(lambda x: '#4CAF50' if x > 0 else '#FF5733')
+    ))
+
+    fig.update_layout(
+        title="Sentiment Scores for Selected Stocks",
+        xaxis_title="Stock Symbol",
+        yaxis_title="Sentiment Score",
+        template="plotly_white"
+    )
+
+    st.plotly_chart(fig)
+
 
 # Define the file to store visit count
 visit_count_file = "visit_count.txt"
