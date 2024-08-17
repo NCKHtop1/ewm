@@ -20,7 +20,7 @@ def get_visit_count():
         with open(visit_count_file, "r") as f:
             return int(f.read())
     else:
-        return 0
+        return 200  # Start from 200 if the file doesn't exist
 
 # Function to save the visit count to the file
 def save_visit_count(count):
