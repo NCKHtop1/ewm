@@ -16,11 +16,17 @@ visit_count_file = "visit_count.txt"
 
 # Function to read visit count from the file
 def get_visit_count():
+    # Check if the file exists
     if os.path.exists(visit_count_file):
         with open(visit_count_file, "r") as f:
-            return int(f.read())
+            count = int(f.read())
+            # Ensure the count starts at least from 200
+            if count < 200:
+                return 200
+            return count
     else:
-        return 200  # Start from 200 if the file doesn't exist
+        # Return 200 if the file does not exist
+        return 200
 
 # Function to save the visit count to the file
 def save_visit_count(count):
@@ -41,6 +47,23 @@ multiplied_visit_count = visit_count * 3
 
 # Display the visit count in the app
 st.write(f"Lượt truy cập: {multiplied_visit_count}")
+
+# CSS for watermarking the visit counter
+st.markdown(f"""
+    <style>
+    .watermark {{
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        z-index: 100;
+    }}
+    </style>
+    <div class="watermark">
+        Visits: {multiplied_visit_count}
+    </div>
+    """, unsafe_allow_html=True)
 
 # CSS for watermarking the visit counter
 st.markdown(f"""
