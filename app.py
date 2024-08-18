@@ -736,34 +736,52 @@ if selected_stocks:
                             except Exception as e:
                                 st.error(f"Đã xảy ra lỗi: {e}")
 
-                        # Assuming the risk-free rate is given or assumed to be a constant value
-                        risk_free_rate = 0.01  # 1% annual risk-free rate
-                        
-                        with tab2:
-                            st.markdown("**Chi tiết kết quả kiểm thử:**")
-                            st.markdown("Tab này hiển thị hiệu suất tổng thể của chiến lược giao dịch đã chọn. \
-                                        Bạn sẽ tìm thấy các chỉ số quan trọng như tổng lợi nhuận, lợi nhuận/lỗ, và các thống kê liên quan khác.")
-                            stats_df = pd.DataFrame(portfolio.stats(risk_free=risk_free_rate), columns=['Giá trị'])  # Set risk-free rate for calculations
-                            stats_df.index.name = 'Chỉ số'
-                            metrics_vi = {
-                                'Start Value': 'Giá trị ban đầu',
-                                'End Value': 'Giá trị cuối cùng',
-                                'Total Return [%]': 'Tổng lợi nhuận [%]',
-                                'Max Drawdown [%]': 'Mức giảm tối đa [%]',
-                                'Total Trades': 'Tổng số giao dịch',
-                                'Win Rate [%]': 'Tỷ lệ thắng [%]',
-                                'Best Trade [%]': 'Giao dịch tốt nhất [%]',
-                                'Worst Trade [%]': 'Giao dịch thấp nhất [%]',
-                                'Profit Factor': 'Hệ số lợi nhuận',
-                                'Expectancy': 'Kỳ vọng',
-                                'Sharpe Ratio': 'Tỷ lệ Sharpe',
-                                'Sortino Ratio': 'Tỷ lệ Sortino',
-                                'Calmar Ratio': 'Tỷ lệ Calmar'
-                            }
-                            stats_df.rename(index=metrics_vi, inplace=True)
-                            st.dataframe(stats_df, height=800)
+def run_backtest(df, init_cash, fees, direction, t_plus, risk_free_rate=0.01):
+    df = apply_t_plus(df, t_plus)
+    entries = df['Adjusted Buy']
+    exits = df['Adjusted Sell']
 
+    if entries.empty or exits.empty or not entries.any() or not exits.any():
+        return None
 
+    # Setting risk-free rate for the portfolio
+    portfolio = vbt.Portfolio.from_signals(
+        df['close'],
+        entries,
+        exits,
+        init_cash=init_cash,
+        fees=fees,
+        direction=direction,
+        freq='d',  # Ensure the frequency is daily as it impacts the annualization calculation
+        risk_free=risk_free_rate  # Include risk-free rate here
+    )
+    return portfolio
+
+# Usage of the function within your Streamlit code or analysis setup
+portfolio = run_backtest(df_filtered, init_cash, fees, direction, t_plus)
+
+                    # Then, when retrieving stats
+                    with tab2:
+                        st.markdown("**Chi tiết kết quả kiểm thử:**")
+                        stats_df = pd.DataFrame(portfolio.stats(), columns=['Giá trị'])
+                        stats_df.index.name = 'Chỉ số'
+                        metrics_vi = {
+                            'Start Value': 'Giá trị ban đầu',
+                            'End Value': 'Giá trị cuối cùng',
+                            'Total Return [%]': 'Tổng lợi nhuận [%]',
+                            'Max Drawdown [%]': 'Mức giảm tối đa [%]',
+                            'Total Trades': 'Tổng số giao dịch',
+                            'Win Rate [%]': 'Tỷ lệ thắng [%]',
+                            'Best Trade [%]': 'Giao dịch tốt nhất [%]',
+                            'Worst Trade [%]': 'Giao dịch thấp nhất [%]',
+                            'Profit Factor': 'Hệ số lợi nhuận',
+                            'Expectancy': 'Kỳ vọng',
+                            'Sharpe Ratio': 'Tỷ lệ Sharpe',
+                            'Sortino Ratio': 'Tỷ lệ Sortino',
+                            'Calmar Ratio': 'Tỷ lệ Calmar'
+                        }
+                        stats_df.rename(index=metrics_vi, inplace=True)
+                        st.dataframe(stats_df, height=800)
                         with tab3:
                             st.markdown("**Tổng hợp lệnh mua/bán:**")
                             st.markdown("Tab này cung cấp danh sách chi tiết của tất cả các lệnh mua/bán được thực hiện bởi chiến lược. \
