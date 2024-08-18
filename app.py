@@ -736,11 +736,14 @@ if selected_stocks:
                             except Exception as e:
                                 st.error(f"Đã xảy ra lỗi: {e}")
 
+                        # Assuming the risk-free rate is given or assumed to be a constant value
+                        risk_free_rate = 0.01  # 1% annual risk-free rate
+                        
                         with tab2:
                             st.markdown("**Chi tiết kết quả kiểm thử:**")
                             st.markdown("Tab này hiển thị hiệu suất tổng thể của chiến lược giao dịch đã chọn. \
                                         Bạn sẽ tìm thấy các chỉ số quan trọng như tổng lợi nhuận, lợi nhuận/lỗ, và các thống kê liên quan khác.")
-                            stats_df = pd.DataFrame(portfolio.stats(), columns=['Giá trị'])
+                            stats_df = pd.DataFrame(portfolio.stats(risk_free=risk_free_rate), columns=['Giá trị'])  # Set risk-free rate for calculations
                             stats_df.index.name = 'Chỉ số'
                             metrics_vi = {
                                 'Start Value': 'Giá trị ban đầu',
@@ -759,6 +762,7 @@ if selected_stocks:
                             }
                             stats_df.rename(index=metrics_vi, inplace=True)
                             st.dataframe(stats_df, height=800)
+
 
                         with tab3:
                             st.markdown("**Tổng hợp lệnh mua/bán:**")
