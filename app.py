@@ -682,19 +682,18 @@ if selected_stocks:
 
                         with tab1:
                             try:
-                                st.markdown("<h2 style='text-align: center; color: #4CAF50;'>Tóm tắt chiến lược</h2>",
-                                            unsafe_allow_html=True)
-
+                                st.markdown("<h2 style='text-align: center; color: #4CAF50;'>Tóm tắt chiến lược</h2>", unsafe_allow_html=True)
+                        
                                 indicator_name = ", ".join(strategies)
                                 win_rate = portfolio.stats()['Win Rate [%]']
                                 win_rate_color = "#4CAF50" if win_rate > 50 else "#FF5733"
-
+                        
                                 st.markdown(
                                     f"<div style='text-align: center; margin-bottom: 20px;'><span style='color: {win_rate_color}; font-size: 24px; font-weight: bold;'>Tỷ lệ thắng: {win_rate:.2f}%</span><br><span style='font-size: 18px;'>Sử dụng chỉ báo: {indicator_name}</span></div>",
                                     unsafe_allow_html=True)
-
+                        
                                 cumulative_return = portfolio.stats()['Total Return [%]']
-                                annualized_return = portfolio.stats().get('Annual Return [%]',0)
+                                profit_factor = portfolio.stats().get('Profit Factor', 0)  # Retrieving the profit factor from the portfolio stats
                                 st.markdown(
                                     "<div style='background-color: #f0f2f6; padding: 10px; border-radius: 10px; margin-bottom: 20px;'>",
                                     unsafe_allow_html=True)
@@ -702,9 +701,13 @@ if selected_stocks:
                                     f"<p style='text-align: center; margin: 0;'><strong>Hiệu suất trên các mã chọn: {', '.join(selected_stocks)}</strong></p>",
                                     unsafe_allow_html=True)
                                 st.markdown(
-                                    f"<p style='text-align: center; margin: 0;'><strong>Tổng lợi nhuận: {cumulative_return:.2f}%</strong> | <strong>Lợi nhuận hàng năm: {annualized_return:.2f}%</strong></p>",
+                                    f"<p style='text-align: center; margin: 0;'><strong>Tổng lợi nhuận: {cumulative_return:.2f}%</strong> | <strong>Hệ số lợi nhuận: {profit_factor:.2f}</strong></p>",
                                     unsafe_allow_html=True)
                                 st.markdown("</div>", unsafe_allow_html=True)
+                        
+                            except Exception as e:
+                                st.error(f"Đã xảy ra lỗi: {e}")
+
 
                                 price_data = df_filtered['close']
                                 crash_df = df_filtered[df_filtered['Crash']]
