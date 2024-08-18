@@ -12,38 +12,6 @@ import base64
 import logging
 import random
 
-# Function to set theme based on user selection
-def set_theme():
-    if 'theme' not in st.session_state:
-        st.session_state['theme'] = 'light'  # Default to light mode
-    
-    if st.session_state['theme'] == 'light':
-        st.markdown("""
-            <style>
-                .main {background-color: #ffffff; color: #000000;}
-                .sidebar .sidebar-content {background-color: #f1f3f6;}
-            </style>
-            """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <style>
-                .main {background-color: #333333; color: #ffffff;}
-                .sidebar .sidebar-content {background-color: #262730;}
-            </style>
-            """, unsafe_allow_html=True)
-
-# Setting the initial theme based on the session state
-set_theme()
-
-# Toggle button to switch themes
-if st.sidebar.button('Toggle Theme'):
-    if st.session_state['theme'] == 'light':
-        st.session_state['theme'] = 'dark'
-    else:
-        st.session_state['theme'] = 'light'
-    set_theme()  # Update the theme based on the new state
-
-
 # Define the file to store visit count
 visit_count_file = "visit_count.txt"
 
