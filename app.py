@@ -702,7 +702,7 @@ if selected_stocks:
                                     f"<p style='text-align: center; margin: 0;'><strong>Hiệu suất trên các mã chọn: {', '.join(selected_stocks)}</strong></p>",
                                     unsafe_allow_html=True)
                                 st.markdown(
-                                    f"<p style='text-align: center; margin: 0;'><strong>Tổng lợi nhuận: {cumulative_return:.2f}%</strong> | <strong>Lợi nhuận hàng năm: {annualized_return:.2f}%</strong></p>",
+                                    f"<p style='text-align: center; margin: 0;'><strong>Tổng lợi nhuận: {cumulative_return:.2f}%</strong>,
                                     unsafe_allow_html=True)
                                 st.markdown("</div>", unsafe_allow_html=True)
 
