@@ -43,11 +43,7 @@ if st.sidebar.button('Toggle Theme'):
         st.session_state['theme'] = 'light'
     set_theme()  # Update the theme based on the new state
 
-# Example usage in your app
-st.title('Welcome to the Theme Toggler App')
-st.write("This is an example of toggling between light and dark themes in Streamlit."
 
-         
 # Define the file to store visit count
 visit_count_file = "visit_count.txt"
 
