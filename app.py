@@ -694,7 +694,7 @@ if selected_stocks:
                                     unsafe_allow_html=True)
 
                                 cumulative_return = portfolio.stats()['Total Return [%]']
-                                annualized_return = portfolio.stats().get('Annual Return [%]')
+                                annualized_return = portfolio.stats().get('Annual Return [%]',0)
                                 st.markdown(
                                     "<div style='background-color: #f0f2f6; padding: 10px; border-radius: 10px; margin-bottom: 20px;'>",
                                     unsafe_allow_html=True)
