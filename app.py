@@ -704,10 +704,6 @@ if selected_stocks:
                                     f"<p style='text-align: center; margin: 0;'><strong>Tổng lợi nhuận: {cumulative_return:.2f}%</strong> | <strong>Hệ số lợi nhuận: {profit_factor:.2f}</strong></p>",
                                     unsafe_allow_html=True)
                                 st.markdown("</div>", unsafe_allow_html=True)
-                        
-                            except Exception as e:
-                                st.error(f"Đã xảy ra lỗi: {e}")
-
 
                                 price_data = df_filtered['close']
                                 crash_df = df_filtered[df_filtered['Crash']]
